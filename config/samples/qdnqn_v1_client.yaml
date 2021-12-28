@@ -1,0 +1,9 @@
+apiVersion: qdnqn.clientmgr.io/v1
+kind: Client
+metadata:
+  name: client-sample
+spec:
+  clientId: "X1-54321"
+  containerImage: "rest"
+  containerTag: "0.0.2"
+  containerEntrypoint: "/multi-tenant-app"

@@ -1,0 +1,16 @@
+domain: clientmgr.io
+layout:
+- go.kubebuilder.io/v3
+projectName: tutorial
+repo: clientmgr.io/tutorial
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: clientmgr.io
+  group: qdnqn
+  kind: Client
+  path: clientmgr.io/tutorial/api/v1
+  version: v1
+version: "3"
