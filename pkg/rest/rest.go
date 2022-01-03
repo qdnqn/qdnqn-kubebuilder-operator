@@ -3,7 +3,6 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -19,8 +18,6 @@ func BindClient(clientResource *qdnqnv1.Client, IP string) bool {
 		"clientId": clientResource.Spec.ClientId,
 		"IP":       IP,
 	}
-
-	fmt.Println("REST: " + "http://" + IP + ":8080/addClient")
 
 	jsonValue, _ := json.Marshal(data)
 	resp, err := http.Post("http://"+IP+":8080/addClient", "application/json", bytes.NewBuffer(jsonValue))

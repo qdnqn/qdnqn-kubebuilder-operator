@@ -1,9 +1,30 @@
+---
 apiVersion: qdnqn.clientmgr.io/v1
 kind: Client
 metadata:
-  name: client-sample
+  name: client-sample-1
 spec:
-  clientId: "X1-54321"
+  clientId: "POD-OWNER"
   containerImage: "rest"
-  containerTag: "0.0.2"
+  containerTag: "0.0.5"
+  containerEntrypoint: "/multi-tenant-app"
+---
+apiVersion: qdnqn.clientmgr.io/v1
+kind: Client
+metadata:
+  name: client-sample-2
+spec:
+  clientId: "POD-OWNER"
+  containerImage: "rest"
+  containerTag: "0.0.4"
+  containerEntrypoint: "/multi-tenant-app"
+---
+apiVersion: qdnqn.clientmgr.io/v1
+kind: Client
+metadata:
+  name: client-sample-3
+spec:
+  clientId: "X1-12340"
+  containerImage: "rest"
+  containerTag: "0.0.4"
   containerEntrypoint: "/multi-tenant-app"

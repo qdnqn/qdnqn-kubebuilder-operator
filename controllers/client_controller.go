@@ -79,7 +79,7 @@ func (r *ClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			return ctrl.Result{}, err
 		} else {
 			log.Info("updated client status: " + clientResource.Status.ClientStatus)
-			return ctrl.Result{}, nil
+			return ctrl.Result{Requeue: true}, nil
 		}
 	case qdnqnv1.StatusRunning:
 		pod := resources.CreatePod(clientResource)
@@ -100,12 +100,12 @@ func (r *ClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 				log.Info("pod created successfully", "name", pod.Name)
 
-				return ctrl.Result{Requeue: true}, nil
+				return ctrl.Result{}, nil
 			} else {
 				clientResource.Status.ClientStatus = qdnqnv1.StatusCleaning
 			}
 		} else if err != nil {
-			log.Error(err, "cannot create pod")
+			log.Error(err, "cannot get pod")
 			return ctrl.Result{}, err
 		} else if query.Status.Phase == corev1.PodFailed ||
 			query.Status.Phase == corev1.PodSucceeded {
@@ -116,9 +116,11 @@ func (r *ClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			if clientResource.Status.LastPodName != clientResource.Spec.ContainerImage+clientResource.Spec.ContainerTag {
 				if query.Status.ContainerStatuses[0].Ready {
 					log.Info("Trying to bind to: " + query.Status.PodIP)
+
 					if !rest.GetClient(clientResource, query.Status.PodIP) {
 						if rest.BindClient(clientResource, query.Status.PodIP) {
 							log.Info("Client" + clientResource.Spec.ClientId + " is binded to pod " + query.ObjectMeta.GetName() + ".")
+							clientResource.Status.ClientStatus = qdnqnv1.StatusCleaning
 						} else {
 							log.Info("Client not added.")
 						}
@@ -130,14 +132,13 @@ func (r *ClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 					return ctrl.Result{Requeue: true}, err
 				}
 
-				clientResource.Status.ClientStatus = qdnqnv1.StatusCleaning
 				log.Info("Client last pod name: " + clientResource.Status.LastPodName)
 				log.Info("Pod is running.")
 			}
 		} else if query.Status.Phase == corev1.PodPending {
-			return ctrl.Result{}, nil
+			return ctrl.Result{Requeue: true}, nil
 		} else {
-			return ctrl.Result{}, err
+			return ctrl.Result{Requeue: true}, err
 		}
 
 		if !reflect.DeepEqual(clientResourceOld.Status, clientResource.Status) {
@@ -147,7 +148,7 @@ func (r *ClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 				return ctrl.Result{}, err
 			} else {
 				log.Info("updated client status RUNNING -> " + clientResource.Status.ClientStatus)
-				return ctrl.Result{}, nil
+				return ctrl.Result{Requeue: true}, nil
 			}
 		}
 	case qdnqnv1.StatusCleaning:
@@ -183,7 +184,7 @@ func (r *ClientReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 				return ctrl.Result{}, err
 			} else {
 				log.Info("updated client status CLEANING -> " + clientResource.Status.ClientStatus)
-				return ctrl.Result{}, nil
+				return ctrl.Result{Requeue: true}, nil
 			}
 		}
 	default:
